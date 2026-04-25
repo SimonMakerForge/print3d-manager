@@ -31,16 +31,22 @@ jobs:
           files: dist_electron/**/*.exe
           name: Print3D Manager ${{ github.ref_name }}
           body: |
-            ## Print3D Manager ${{ github.ref_name }}
+            ## Novità ${{ github.ref_name }} / What's new
 
-            ### Download
-            Scarica il file `.exe` qui sotto — nessuna installazione richiesta, avvia direttamente.
-
-            ### Note
-            ⚠️ Windows potrebbe mostrare un avviso SmartScreen alla prima apertura.
-            Clicca **"Ulteriori informazioni"** → **"Esegui comunque"** per procedere.
+            Vedi il README per la lista completa delle funzionalità.
+            See README for the full list of features.
 
             ---
-            © SimonMakerForge · [GitHub](https://github.com/SimonMakerForge/print3d-manager)
+
+            ## Download
+            Scarica il file .exe qui sotto — nessuna installazione richiesta.
+            Download the .exe file below — no installation required, just run it.
+
+            > Windows SmartScreen
+            > IT: Clicca "Ulteriori informazioni" - "Esegui comunque"
+            > EN: Click "More info" - "Run anyway"
+
+            ---
+            (c) SimonMakerForge - https://github.com/SimonMakerForge/print3d-manager
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
