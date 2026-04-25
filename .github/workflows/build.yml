@@ -24,13 +24,16 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build Vite + Electron
-        run: npm run dist
+      - name: Build Vite
+        run: npm run build
+
+      - name: Build Electron portable only
+        run: npx electron-builder --win portable --x64
 
       - name: Upload Release
         uses: softprops/action-gh-release@v2
         with:
-          files: dist_electron/**/*.exe
+          files: dist_electron/**/*portable*.exe
           name: Print3D Manager ${{ github.ref_name }}
           body: |
             ## Print3D Manager ${{ github.ref_name }}
