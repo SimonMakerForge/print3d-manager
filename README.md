@@ -40,11 +40,21 @@
 
 ## 🚀 Come iniziare
 
-### Requisiti
+### ⬇️ Download eseguibile (Windows)
+Vai nella sezione [Releases](https://github.com/SimonMakerForge/print3d-manager/releases) e scarica il file `.exe` — nessuna installazione richiesta, avvia direttamente.
+
+> ⚠️ **Avviso SmartScreen (Windows)**
+> L'eseguibile non è firmato digitalmente, quindi Windows potrebbe mostrare un avviso alla prima apertura.
+> Per procedere: clicca **"Ulteriori informazioni"** → **"Esegui comunque"**.
+> Il software è sicuro — il codice sorgente è completamente pubblico e verificabile su questo repository.
+
+### 🛠️ Compilare dal sorgente
+
+**Requisiti:**
 - [Node.js](https://nodejs.org/) ≥ 18
 - [Electron](https://www.electronjs.org/) (incluso nelle dipendenze)
 
-### Installazione
+**Installazione:**
 
 ```bash
 git clone https://github.com/SimonMakerForge/print3d-manager.git
