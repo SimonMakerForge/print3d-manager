@@ -16,6 +16,7 @@
   },
   "build": {
     "appId": "com.SimonMakerForge.print3dmanager",
+    "productName": "Print3D Manager",
     "directories": {
       "output": "dist_electron"
     },
@@ -25,7 +26,10 @@
     ],
     "win": {
       "icon": "public/icon.ico",
-      "target": "portable"
+      "target": [
+        {"target": "portable", "arch": ["x64"]}
+      ],
+      "artifactName": "${productName}-${version}-portable.exe"
     }
   },
   "dependencies": {
@@ -41,7 +45,6 @@
     "electron": "^41.2.1",
     "electron-builder": "^26.8.1",
     "eslint": "^9.0.0",
-    "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.0",
     "globals": "^15.0.0",
     "vite": "^6.0.0"
