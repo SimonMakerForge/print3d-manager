@@ -38,6 +38,10 @@
 - **Bilingue** — Italiano / English
 - **Session file** — salvataggio su file locale via File System Access API (nessun server)
 
+## 📖 Documentazione
+- [Guida utente — Italiano](https://raw.githubusercontent.com/SimonMakerForge/print3d-manager/main/docs/Print3D_Manager_Guida_V236_IT.pdf)
+- [User guide — English](https://raw.githubusercontent.com/SimonMakerForge/print3d-manager/main/docs/Print3D_Manager_Quick_Guide_V236_EN.pdf)
+
 ## 🚀 Come iniziare
 
 ### ⬇️ Download eseguibile (Windows)
