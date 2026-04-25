@@ -1,0 +1,46 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Vite + Electron
+        run: npm run dist
+
+      - name: Upload Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist_electron/**/*.exe
+          name: Print3D Manager ${{ github.ref_name }}
+          body: |
+            ## Print3D Manager ${{ github.ref_name }}
+
+            ### Download
+            Scarica il file `.exe` qui sotto — nessuna installazione richiesta, avvia direttamente.
+
+            ### Note
+            ⚠️ Windows potrebbe mostrare un avviso SmartScreen alla prima apertura.
+            Clicca **"Ulteriori informazioni"** → **"Esegui comunque"** per procedere.
+
+            ---
+            © SimonMakerForge · [GitHub](https://github.com/SimonMakerForge/print3d-manager)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
