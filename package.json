@@ -3,7 +3,7 @@
   "author": "SimonMakerForge <ss.soldani@gmail.com>",
   "description": "Gestore per stampe 3D",
   "private": true,
-  "version": "2.36.0",
+  "version": "2.41.0",
   "type": "module",
   "main": "main.cjs",
   "scripts": {
