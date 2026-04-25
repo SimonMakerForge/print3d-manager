@@ -1,7 +1,7 @@
 # Print3D Manager
 
 <p align="center">
-  <img src="assets/logo.png" alt="SimonMakerForge" width="100"/>
+  <img src="SMF-LOGO.png" alt="SimonMakerForge" width="100"/>
 </p>
 
 <p align="center">
