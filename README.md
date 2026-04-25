@@ -10,6 +10,7 @@
 
 <p align="center">
   <strong>Gestisci la tua attività di stampa 3D in un unico posto.</strong><br/>
+  <em>Manage your 3D printing workshop in one place.</em><br/>
   Materiali · Bobine · Stampanti · Preventivi · Ricevute · Analisi
 </p>
 
