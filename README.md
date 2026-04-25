@@ -5,6 +5,10 @@
 </p>
 
 <p align="center">
+  <strong>SimonMakerForge</strong> · by Simone Soldani
+</p>
+
+<p align="center">
   <strong>Gestisci la tua attività di stampa 3D in un unico posto.</strong><br/>
   Materiali · Bobine · Stampanti · Preventivi · Ricevute · Analisi
 </p>
