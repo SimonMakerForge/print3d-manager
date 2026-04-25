@@ -18,7 +18,7 @@
 import { useState, useEffect, useRef, useCallback, createContext, useContext, Fragment } from "react";
 import { LayoutDashboard,Layers,Package,Printer,FileText,Settings,Plus,Edit2,Trash2,X,Search,AlertTriangle,RefreshCw,ChevronRight,ChevronLeft,Download,Upload,Eye,Minus,Users,Copy,Lock,Calculator,Archive } from "lucide-react";
 
-const APP_VERSION='V2.36';
+const APP_VERSION='V2.41';
 const DATA_VERSION='11';
 
 /* ══ I18N ══ */
@@ -49,7 +49,7 @@ const TRANSLATIONS={
     add:'Aggiungi',save:'Salva',cancel:'Annulla',edit:'Modifica',del:'Elimina',
     back:'Indietro',all:'Tutti',manage:'Gestisci',search:'Cerca',close:'Chiudi',
     confirm_del:'Conferma eliminazione',irreversible:'Questa azione è irreversibile.',
-    del_linked:'I preventivi collegati segnaleranno una variazione alla prossima apertura.',
+    del_print_linked_title:'Stampa collegata a un preventivo',del_print_linked_body:'Questa stampa è collegata al preventivo',del_print_remove_model:'Elimina stampa e rimuovi il modello dal preventivo',del_print_remove_model_hint:'Il modello verrà rimosso dall\u2019elenco modelli del preventivo.',del_print_only:'Elimina solo la stampa',del_print_only_hint:'Il modello rimarrà nel preventivo senza stampa associata.',
     notes:'Note',name:'Nome',surname:'Cognome',company:'Azienda',
     address:'Indirizzo',city:'Città',province:'Provincia',zip:'CAP',
     price:'Prezzo',stock:'Stock',format:'Formato',color:'Colore',markup:'Markup',
@@ -214,7 +214,7 @@ const TRANSLATIONS={
     q_uso_interno:'Uso interno (lavoro aziendale)',
     q_uso_interno_hint:'Nessun markup, corriere o IVA. Traccia costi materiali, energia e ammortamento.',
     q_int_section:'Lavori interni',q_int_badge:'Interno',
-    dash_int_costs:'Costi stampe interne',dash_int_label:'da lavori aziendali completati',dash_int_label_count:'lavori interni',
+    dash_int_costs:'Costi stampe interne',dash_int_label:'da lavori aziendali completati',dash_int_label_count:'lavori interni',dash_standalone_count:'stampe senza preventivo',
     dash_int_count:'Lavori interni completati',
     /* inventory filter */
     inv_filter_stock:'Filtra scorte minori di (g):',inv_filter_ph:'es. 500',inv_filter_clear:'Tutti',
@@ -279,7 +279,7 @@ const TRANSLATIONS={
     waste_unknown_mat:'Materiale sconosciuto',
     waste_expected:'Previsto',waste_new_stock:'→ stock',
     pdf_taxable:'Imponibile',pdf_iva:'IVA',pdf_ritenuta:"Ritenuta d'acconto 20%",
-    pdf_total:'TOTALE',pdf_notes:'Note',pdf_payment:'Metodi di Pagamento',
+    pdf_total:'TOTALE',pdf_notes:'Note',pdf_payment:'Metodi di Pagamento',pdf_days:'giorni',pdf_col_item:'Voce',pdf_col_detail:'Dettaglio',
     /* quote project & payment */
     q_nome_progetto:'Nome Progetto',q_nome_progetto_ph:'es. Casa delle Bambole',
     q_payment_methods:'Metodi di pagamento accettati',
@@ -324,13 +324,13 @@ const TRANSLATIONS={
     print_rcpt_locked:'🔒 Ricevuta definitiva emessa — la stampa e il preventivo collegati non sono modificabili.',
     print_form_materials:'Materiali',print_form_add_mat:'Materiale',print_form_total_prod:'Totale Produzione',
     /* QuoteForm modello */
-    q_model_wait_lock:'ℹ️ Modello In attesa: Il Nome è bloccato. (Materiali, tempi e manodopera sono modificabili)',
+    q_model_wait_lock:'ℹ️ Modello In attesa: Il Nome è bloccato. (Materiali, tempi e manodopera sono modificabili)',q_remove_model_title:'Elimina modello',q_remove_model_body:'Questo modello ha una stampa collegata in stato "In attesa".',q_remove_model_del_print:'Elimina anche la stampa',q_remove_model_keep_print:'Mantieni la stampa',q_remove_model_cancel:'Annulla',
     q_model_materials:'Materiali',q_model_extra:'Servizi Extra',
     /* Contacts */
     rb_title:'Rubrica Clienti',
     rb_field_name:'Nome',rb_field_surname:'Cognome',rb_field_company:'Azienda',rb_field_phone:'Telefono',
     /* Company data */
-    set_address:'Indirizzo',set_city:'Città',set_province:'Provincia',
+    set_address:'Indirizzo',set_email_azienda:'Email aziendale',set_city:'Città',set_province:'Provincia',
     /* Printer form */
     pr_consumption_label:'Consumo (kW)',pr_amort_label:'Ammortamento (€/h)',
     /* Print form extra */
@@ -400,7 +400,7 @@ const TRANSLATIONS={
     add:'Add',save:'Save',cancel:'Cancel',edit:'Edit',del:'Delete',
     back:'Back',all:'All',manage:'Manage',search:'Search',close:'Close',
     confirm_del:'Confirm deletion',irreversible:'This action cannot be undone.',
-    del_linked:'Linked quotes will flag a change warning on next open.',
+    del_print_linked_title:'Print linked to a quote',del_print_linked_body:'This print is linked to quote',del_print_remove_model:'Delete print and remove model from quote',del_print_remove_model_hint:'The model will be removed from the quote model list.',del_print_only:'Delete print only',del_print_only_hint:'The model will remain in the quote without a linked print.',
     notes:'Notes',name:'First name',surname:'Last name',company:'Company',
     address:'Address',city:'City',province:'Province',zip:'ZIP',
     price:'Price',stock:'Stock',format:'Format',color:'Color',markup:'Markup',
@@ -558,7 +558,7 @@ const TRANSLATIONS={
     q_uso_interno:'Internal use (company job)',
     q_uso_interno_hint:'No markup, shipping or VAT. Tracks material, energy and depreciation costs.',
     q_int_section:'Internal jobs',q_int_badge:'Internal',
-    dash_int_costs:'Internal costs',dash_int_label:'from completed internal jobs',dash_int_label_count:'internal jobs',
+    dash_int_costs:'Internal costs',dash_int_label:'from completed internal jobs',dash_int_label_count:'internal jobs',dash_standalone_count:'standalone prints',
     dash_int_count:'Completed internal jobs',
     inv_filter_stock:'Filter stock less than (g):',inv_filter_ph:'e.g. 500',inv_filter_clear:'All',
     pdf_quote:'Quote',pdf_receipt:'Receipt',pdf_valid:'Valid',
@@ -602,7 +602,7 @@ const TRANSLATIONS={
     waste_unknown_mat:'Unknown material',
     waste_expected:'Expected',waste_new_stock:'→ stock',
     pdf_taxable:'Taxable',pdf_iva:'VAT',pdf_ritenuta:'Withholding tax 20%',
-    pdf_total:'TOTAL',pdf_notes:'Notes',pdf_payment:'Payment Methods',
+    pdf_total:'TOTAL',pdf_notes:'Notes',pdf_payment:'Payment Methods',pdf_days:'days',pdf_col_item:'Item',pdf_col_detail:'Detail',
     q_nome_progetto:'Project Name',q_nome_progetto_ph:'e.g. Doll House',
     q_payment_methods:'Accepted payment methods',
     print_cost_detail:'Cost breakdown (from quote)',
@@ -647,13 +647,13 @@ const TRANSLATIONS={
     print_rcpt_locked:'🔒 Definitive receipt issued — the linked print and quote cannot be edited.',
     print_form_materials:'Materials',print_form_add_mat:'Material',print_form_total_prod:'Total Production',
     /* QuoteForm model */
-    q_model_wait_lock:'ℹ️ Model pending: Name is locked. (Materials, time and labor are editable)',
+    q_model_wait_lock:'ℹ️ Model pending: Name is locked. (Materials, time and labor are editable)',q_remove_model_title:'Delete model',q_remove_model_body:'This model has a linked print in "Pending" status.',q_remove_model_del_print:'Also delete the print',q_remove_model_keep_print:'Keep the print',q_remove_model_cancel:'Cancel',
     q_model_materials:'Materials',q_model_extra:'Extra Services',
     /* Contacts */
     rb_title:'Contacts',
     rb_field_name:'First name',rb_field_surname:'Last name',rb_field_company:'Company',rb_field_phone:'Phone',
     /* Company data */
-    set_address:'Address',set_city:'City',set_province:'Province',
+    set_address:'Address',set_email_azienda:'Business email',set_city:'City',set_province:'Province',
     /* Printer form */
     pr_consumption_label:'Consumption (kW)',pr_amort_label:'Depreciation (€/h)',
     /* Print form extra */
@@ -1128,7 +1128,7 @@ const DP=[{id:'pr1',marca:'Bambu Lab',modello:'H2C',nome:'Bambu Lab H2C',e_kwh:0
 const prNome=p=>(p.marca||p.modello)?[p.marca,p.modello].filter(Boolean).join(' '):p.nome||'—';
 const DS={
   ragione_sociale:'La Mia Officina 3D',logo:null,
-  indirizzo:'',citta:'',provincia:'',cap:'',piva:'',cf_azienda:'',
+  indirizzo:'',citta:'',provincia:'',cap:'',piva:'',cf_azienda:'',email_azienda:'',
   c_kwh:0.25,m_op_default:5,tipi:[...BASE_TIPI],markup_globale:30,valuta:'€',colori_en:false,tema:{preset:TEMA_DEFAULT,custom:null},
   quick_types:['PLA','PLA+','PETG','ABS','TPU','ASA','Resin','PA (Nylon)'],
   regime:'ordinario',iva:22,ritenuta:false,
@@ -1457,10 +1457,10 @@ const buildPdfHtml = (q, mats, printers, settings, isRicevuta = false, lang='it'
     const prodRow = !isMasked ? `<tr class="tot"><td colspan="2">${t('pdf_prod_total')}</td><td>€ ${costs.total.toFixed(2)}</td></tr>` : '';
     const impLabel = isMasked ? t('q_taxable') : `${t('q_taxable')} (mk ${q.markup||0}%${q.markup_extra>0?` + extra ${q.markup_extra}%`:''})`;
     
-    const ivaR = sale.ivaAmt > 0 ? `<tr class="sub"><td colspan="2">IVA ${q.iva ?? settings.iva}%</td><td>€ ${sale.ivaAmt.toFixed(2)}</td></tr>` : '';
-    const ritR = sale.ritenuta_amt > 0 ? `<tr class="sub"><td colspan="2">Ritenuta d'acconto 20%</td><td style="color:#c0392b">- € ${sale.ritenuta_amt.toFixed(2)}</td></tr>` : '';
+    const ivaR = sale.ivaAmt > 0 ? `<tr class="sub"><td colspan="2">${t('pdf_iva')} ${q.iva ?? settings.iva}%</td><td>€ ${sale.ivaAmt.toFixed(2)}</td></tr>` : '';
+    const ritR = sale.ritenuta_amt > 0 ? `<tr class="sub"><td colspan="2">${t('pdf_ritenuta')}</td><td style="color:#c0392b">- € ${sale.ritenuta_amt.toFixed(2)}</td></tr>` : '';
     
-    return `<!DOCTYPE html><html lang="it"><head><meta charset="utf-8"><title>${tipoDoc} ${q.numero}</title><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Helvetica Neue',Arial,sans-serif;color:#111;padding:40px;max-width:740px;margin:0 auto;font-size:13px}.hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px;padding-bottom:14px;border-bottom:3px solid #f59e0b}h1{font-size:23px;font-weight:300;color:#f59e0b}.co{font-size:14px;font-weight:700}.sub-co{font-size:11px;color:#666;line-height:1.6}.sec{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#aaa;margin:14px 0 5px}table{width:100%;border-collapse:collapse}th{text-align:left;padding:6px 10px;background:#f5f5f5;font-size:10px;text-transform:uppercase;color:#888}td{padding:6px 10px;border-bottom:1px solid #f0f0f0;font-size:12px}td:last-child{text-align:right}.tot{background:#fff8e7;font-weight:700}.sub{background:#fafafa}.tot-box{background:#f59e0b;color:#fff;border-radius:9px;padding:15px 20px;text-align:center;margin-top:14px}.tot-box .v{font-size:28px;font-weight:700}.nota{font-size:11px;color:#555;margin-top:10px;padding:10px;background:#f9f9f9;border-radius:6px;line-height:1.7;white-space:pre-wrap}.pay-box{margin-top:10px;padding:10px;background:#f9f9f9;border-radius:6px;border-left:3px solid #f59e0b}.pay-title{font-size:11px;font-weight:700;color:#f59e0b;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}.pay-method{margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #eee}.pay-method:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}.pay-name{font-size:11px;font-weight:700;color:#333;margin-bottom:2px}.pay-desc{font-size:10px;color:#666;white-space:pre-wrap;line-height:1.5}.foot{margin-top:26px;padding-top:8px;border-top:1px solid #eee;font-size:10px;color:#bbb;text-align:center}@media print{body{padding:20px}}</style></head><body><div class="hdr"><div>${az.logo?`<img src="${az.logo}" style="max-height:70px;max-width:180px;display:block;margin-bottom:8px" alt="">`:''}<h1>${tipoDoc}</h1><div style="color:#999;font-size:12px;margin-top:3px">N° ${q.numero} · ${q.data}${q.nome_progetto?` · ${q.nome_progetto}`:''}${q.validita&&!isRicevuta?` · Valido ${q.validita} giorni`:''}</div></div><div><div class="co">${rs}</div><div class="sub-co">${az.indirizzo||''}${az.citta?`<br>${az.cap||''} ${az.citta}${az.provincia?` (${az.provincia})`:''}`:''}${az.piva?`<br>P.IVA: ${az.piva}`:''}${az.cf_azienda?`<br>CF: ${az.cf_azienda}`:''}</div></div></div>${q.cliente?`<div class="sec">Cliente</div><table><tr><td style="padding:8px 10px"><strong>${q.cliente}</strong>${q.email?`<br><span style="color:#666;font-size:11px">${q.email}</span>`:''}</td></tr></table>`:''}<div class="sec">Dettaglio costi</div><table><thead><tr><th>Voce</th><th>Dettaglio</th><th style="text-align:right">€</th></tr></thead><tbody>${dettagliHtml}${cRow}${prodRow}</tbody></table><div class="sec">Riepilogo</div><table><tbody><tr><td colspan="2">${impLabel}</td><td>€ ${sale.imponibile.toFixed(2)}</td></tr>${ivaR}${ritR}<tr class="tot"><td colspan="2">TOTALE</td><td>€ ${sale.totale.toFixed(2)}</td></tr></tbody></table>${q.note?`<div class="nota"><strong>Note:</strong> ${q.note}</div>`:''}${(q.metodi_pagamento||[]).length>0?`<div class="pay-box"><div class="pay-title">${t('pdf_payment')}</div>${q.metodi_pagamento.map(mp=>{const full=(settings.metodi_pagamento||[]).find(x=>x.id===mp.id);return`<div class="pay-method"><div class="pay-name">${mp.nome}</div>${full?.descrizione?`<div class="pay-desc">${full.descrizione}</div>`:''}</div>`;}).join('')}</div>`:''} ${notaR?`<div class="nota">${notaR}</div>`:''}<div class="foot">Print3D Manager · ${rs} · ${new Date().toLocaleDateString('it-IT')}</div><script>window.onload=()=>setTimeout(()=>window.print(),400);</script></body></html>`;
+    return `<!DOCTYPE html><html lang="${lang}"><head><meta charset="utf-8"><title>${tipoDoc} ${q.numero}</title><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Helvetica Neue',Arial,sans-serif;color:#111;padding:40px;max-width:740px;margin:0 auto;font-size:13px}.hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px;padding-bottom:14px;border-bottom:3px solid #f59e0b}h1{font-size:23px;font-weight:300;color:#f59e0b}.co{font-size:14px;font-weight:700}.sub-co{font-size:11px;color:#666;line-height:1.6}.sec{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#aaa;margin:14px 0 5px}table{width:100%;border-collapse:collapse}th{text-align:left;padding:6px 10px;background:#f5f5f5;font-size:10px;text-transform:uppercase;color:#888}td{padding:6px 10px;border-bottom:1px solid #f0f0f0;font-size:12px}td:last-child{text-align:right}.tot{background:#fff8e7;font-weight:700}.sub{background:#fafafa}.tot-box{background:#f59e0b;color:#fff;border-radius:9px;padding:15px 20px;text-align:center;margin-top:14px}.tot-box .v{font-size:28px;font-weight:700}.nota{font-size:11px;color:#555;margin-top:10px;padding:10px;background:#f9f9f9;border-radius:6px;line-height:1.7;white-space:pre-wrap}.pay-box{margin-top:10px;padding:10px;background:#f9f9f9;border-radius:6px;border-left:3px solid #f59e0b}.pay-title{font-size:11px;font-weight:700;color:#f59e0b;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}.pay-method{margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #eee}.pay-method:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}.pay-name{font-size:11px;font-weight:700;color:#333;margin-bottom:2px}.pay-desc{font-size:10px;color:#666;white-space:pre-wrap;line-height:1.5}.foot{margin-top:26px;padding-top:8px;border-top:1px solid #eee;font-size:10px;color:#bbb;text-align:center}@media print{body{padding:20px}}</style></head><body><div class="hdr"><div>${az.logo?`<img src="${az.logo}" style="max-height:70px;max-width:180px;display:block;margin-bottom:8px" alt="">`:''}<h1>${tipoDoc}</h1><div style="color:#999;font-size:12px;margin-top:3px">N° ${q.numero} · ${q.data}${q.nome_progetto?` · ${q.nome_progetto}`:''}${q.validita&&!isRicevuta?` · ${t('pdf_valid')} ${q.validita} ${t('pdf_days')}`:''}</div></div><div><div class="co">${rs}</div><div class="sub-co">${az.indirizzo||''}${az.citta?`<br>${az.cap||''} ${az.citta}${az.provincia?` (${az.provincia})`:''}`:''}${az.piva?`<br>P.IVA: ${az.piva}`:''}${az.cf_azienda?`<br>CF: ${az.cf_azienda}`:''}${az.email_azienda?`<br>${az.email_azienda}`:''}</div></div></div>${q.cliente?`<div class="sec">${t('pdf_client')}</div><table><tr><td style="padding:8px 10px"><strong>${q.cliente}</strong>${q.email?`<br><span style="color:#666;font-size:11px">${q.email}</span>`:''}</td></tr></table>`:''}<div class="sec">${t('pdf_costs')}</div><table><thead><tr><th>${t('pdf_col_item')}</th><th>${t('pdf_col_detail')}</th><th style="text-align:right">€</th></tr></thead><tbody>${dettagliHtml}${cRow}${prodRow}</tbody></table><div class="sec">${t('pdf_summary')}</div><table><tbody><tr><td colspan="2">${impLabel}</td><td>€ ${sale.imponibile.toFixed(2)}</td></tr>${ivaR}${ritR}<tr class="tot"><td colspan="2">${t('pdf_total')}</td><td>€ ${sale.totale.toFixed(2)}</td></tr></tbody></table>${q.note?`<div class="nota"><strong>${t('pdf_notes')}:</strong> ${q.note}</div>`:''}${(q.metodi_pagamento||[]).length>0?`<div class="pay-box"><div class="pay-title">${t('pdf_payment')}</div>${q.metodi_pagamento.map(mp=>{const full=(settings.metodi_pagamento||[]).find(x=>x.id===mp.id);return`<div class="pay-method"><div class="pay-name">${mp.nome}</div>${full?.descrizione?`<div class="pay-desc">${full.descrizione}</div>`:''}</div>`;}).join('')}</div>`:''} ${notaR?`<div class="nota">${notaR}</div>`:''}<div class="foot">Print3D Manager · ${rs} · ${new Date().toLocaleDateString(lang==='en'?'en-GB':'it-IT')}</div><script>window.onload=()=>setTimeout(()=>window.print(),400);</script></body></html>`;
   } catch (error) {
     console.error("Errore generazione PDF:", error);
     return `<html><body><h2 style="color:red">${t('pdf_error')}</h2><p>${error.message}</p></body></html>`;
@@ -2961,7 +2961,7 @@ function PrintForm({mats,printers,settings,quotes,prints,init,isEdit,onSave,onCl
   );
 }
 
-function QuoteForm({mats,printers,settings,quotes,clients,usedNums,prints,init,isEdit,onSave,onClose}){
+function QuoteForm({mats,printers,settings,quotes,clients,usedNums,prints,init,isEdit,onSave,onClose,onDeletePrint}){
   const {t,lang,colorLang}=useT();
   const fmtV=useFmt();
   const iva=settings.regime==='ordinario'?+settings.iva:0;
@@ -3034,6 +3034,7 @@ function QuoteForm({mats,printers,settings,quotes,clients,usedNums,prints,init,i
     (mod.materials||[]).forEach(m=>{acc[m.mat_id]=(acc[m.mat_id]||0)+(+m.peso_g||0);});
     return acc;
   },{});
+  const [removeConfirm,setRemoveConfirm]=useState(null); // {mIdx, modId, printId}
   const isModelLocked = (modId) => {
     if (!isEdit || !init?.id) return false;
     const linkedPrint = (prints || []).find(p => p.quote_id === init.id && p.quote_model_id === modId);
@@ -3090,12 +3091,31 @@ function QuoteForm({mats,printers,settings,quotes,clients,usedNums,prints,init,i
     ss('modelli', [...f.modelli, {
       id: uid(), nome_modello: `Modello ${f.modelli.length + 1}`, printer_id: printers[0]?.id || '',
       materials: [{mat_id:mats[0]?.id||'',peso_g:20,prezzo_snapshot:mats[0]?.prezzo}],
-      ore: 1, min: 0, m_op: +(settings.m_op_default)||5, servizi: [], stato: 'In attesa'
+      ore: 1, min: 0, m_op: +(settings.m_op_default)||5, servizi: [], stato: 'In attesa',
+      _isNew: true
     }]);
   };
 
   const removeModello = (mIdx) => {
+    const mod = f.modelli[mIdx];
+    // Se siamo in modifica e il modello non è appena creato, cerco la stampa collegata
+    if (isEdit && !mod._isNew && init?.id) {
+      const linkedPrint = (prints || []).find(p => p.quote_id === init.id && p.quote_model_id === mod.id && p.stato === 'In attesa');
+      if (linkedPrint) {
+        // Chiedo cosa fare con la stampa collegata
+        setRemoveConfirm({mIdx, modId: mod.id, printId: linkedPrint.id});
+        return;
+      }
+    }
     ss('modelli', f.modelli.filter((_, i) => i !== mIdx));
+  };
+
+  const confirmRemoveModello = (deletePrint) => {
+    if (!removeConfirm) return;
+    const {mIdx, printId} = removeConfirm;
+    if (deletePrint && printId && onDeletePrint) onDeletePrint(printId);
+    ss('modelli', f.modelli.filter((_, i) => i !== mIdx));
+    setRemoveConfirm(null);
   };
 
   const handleSave=()=>{
@@ -3113,16 +3133,19 @@ function QuoteForm({mats,printers,settings,quotes,clients,usedNums,prints,init,i
       qStato = 'Annullato';
     }
 
-    const mWithSnap = f.modelli.map(mod => ({
-      ...mod,
-      m_op: f.uso_interno ? 0 : mod.m_op,
-      servizi: f.uso_interno ? [] : mod.servizi,
-      materials: mod.materials.map(m => {
-        if(m.prezzo_snapshot!==undefined) return m;
-        const mat=mats.find(x=>x.id===m.mat_id);
-        return {...m, prezzo_snapshot: mat?.prezzo};
-      })
-    }));
+    const mWithSnap = f.modelli.map(mod => {
+      const {_isNew, ...modClean} = mod;
+      return {
+        ...modClean,
+        m_op: f.uso_interno ? 0 : modClean.m_op,
+        servizi: f.uso_interno ? [] : modClean.servizi,
+        materials: modClean.materials.map(m => {
+          if(m.prezzo_snapshot!==undefined) return m;
+          const mat=mats.find(x=>x.id===m.mat_id);
+          return {...m, prezzo_snapshot: mat?.prezzo};
+        })
+      };
+    });
 
     /* per uso interno markup/iva/corriere sempre azzerati */
     const effMarkup = f.uso_interno ? 0 : f.markup;
@@ -3139,6 +3162,20 @@ function QuoteForm({mats,printers,settings,quotes,clients,usedNums,prints,init,i
   const sale=calcSale(costs.total,f.uso_interno?0:+f.markup||0,f.uso_interno?0:+f.markup_extra||0,f.uso_interno?0:f.iva,(!f.uso_interno)&&f.ritenuta&&settings.regime==='occasionale');
 
   return(<div>
+    {/* ── Dialog conferma rimozione modello con stampa collegata ── */}
+    {removeConfirm&&(
+      <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.55)',zIndex:9999,display:'flex',alignItems:'center',justifyContent:'center'}}>
+        <div style={{background:C.s1,border:`1px solid ${C.b}`,borderRadius:10,padding:'1.25rem 1.5rem',maxWidth:380,width:'90%',boxShadow:'0 8px 32px rgba(0,0,0,0.35)'}}>
+          <div style={{color:C.t,fontWeight:600,fontSize:'1rem',marginBottom:'0.5rem'}}><Trash2 size={15} style={{display:'inline',verticalAlign:'middle',marginRight:6,color:C.err}}/>{t('q_remove_model_title')}</div>
+          <div style={{color:C.t2,fontSize:'0.85rem',marginBottom:'1rem',lineHeight:1.5}}>{t('q_remove_model_body')}</div>
+          <div style={{display:'flex',flexDirection:'column',gap:8}}>
+            <Btn onClick={()=>confirmRemoveModello(true)} variant="dan"><Trash2 size={13}/>{t('q_remove_model_del_print')}</Btn>
+            <Btn onClick={()=>confirmRemoveModello(false)} variant="sec">{t('q_remove_model_keep_print')}</Btn>
+            <Btn onClick={()=>setRemoveConfirm(null)}>{t('q_remove_model_cancel')}</Btn>
+          </div>
+        </div>
+      </div>
+    )}
     {/* ── Checkbox uso interno ── */}
     <div style={{background:f.uso_interno?'rgba(245,158,11,0.08)':'transparent',border:`1px solid ${f.uso_interno?C.warnBr:C.b}`,borderRadius:8,padding:'0.6rem 0.875rem',marginBottom:'0.75rem',display:'flex',alignItems:'flex-start',gap:10}}>
       <input type="checkbox" id="uso_interno_chk" checked={!!f.uso_interno} onChange={e=>toggleInterno(e.target.checked)} style={{accentColor:C.warn,marginTop:3,cursor:'pointer',width:15,height:15}}/>
@@ -3174,7 +3211,7 @@ function QuoteForm({mats,printers,settings,quotes,clients,usedNums,prints,init,i
   
   // 2. Nome Modello:
   //    Bloccato se tecnici bloccati, OPPURE se in modifica ed è "In attesa"
-  const nameLocked = technicalLocked || (isEdit && mod.stato === 'In attesa');
+  const nameLocked = technicalLocked || (isEdit && mod.stato === 'In attesa' && !mod._isNew);
   
   return (
     <div key={mod.id} style={{background: C.s2, border: `1px solid ${C.b}`, borderRadius: 8, padding: '0.75rem', marginBottom: '0.75rem', opacity: mod.stato === 'Annullato' ? 0.6 : 1}}>
@@ -3339,9 +3376,12 @@ function Dashboard({mats,prints,quotes,printers,alerts,setTab,settings}){
   const revenue=filteredQ.reduce((s,q)=>s+(+q.prezzo||0),0);
   const profitQ=filteredQ.reduce((s,q)=>s+(+q.prezzo||0)-(+q.costo_prod||0),0);
   const avgVal=filteredQ.length>0?revenue/filteredQ.length:0;
-  /* costo interno = somma tutti i lavori interni nel periodo (qualsiasi stato) */
-  const internalCost=filteredIntQ.reduce((s,q)=>s+(+q.costo_prod||0),0);
-  const internalCostComp=filteredIntQComp.reduce((s,q)=>s+(+q.costo_prod||0),0);
+  /* stampe completate senza preventivo collegato → costo interno */
+  const standaloneCompleted=completedPrints.filter(p=>!p.quote_id);
+  const standaloneCost=standaloneCompleted.reduce((s,p)=>s+(+p.costo||0),0);
+  /* costo interno = lavori interni + stampe standalone completate nel periodo */
+  const internalCost=filteredIntQ.reduce((s,q)=>s+(+q.costo_prod||0),0)+standaloneCost;
+  const internalCostComp=filteredIntQComp.reduce((s,q)=>s+(+q.costo_prod||0),0)+standaloneCost;
 
   /* kg consumed by filament type from completed prints in period */
   const kgByTipo={};
@@ -3491,6 +3531,13 @@ function Dashboard({mats,prints,quotes,printers,alerts,setTab,settings}){
                 <span style={{color:C.t3,fontSize:'0.65rem',textTransform:'uppercase',letterSpacing:'0.03em'}}>{t('dash_int_label_count')}</span>
                 {filteredIntQComp.length>0&&<span style={{color:C.t3,fontSize:'0.65rem',marginLeft:'auto'}}>{t('dash_medio')}: {fmtV(internalCostComp/(filteredIntQComp.length||1))}</span>}
               </div>
+              {standaloneCompleted.length>0&&(
+                <div style={{display:'flex',alignItems:'baseline',gap:5,marginTop:3}}>
+                  <span style={{color:C.t2,fontSize:'0.85rem',fontWeight:600}}>{standaloneCompleted.length}</span>
+                  <span style={{color:C.t3,fontSize:'0.65rem',textTransform:'uppercase',letterSpacing:'0.03em'}}>{t('dash_standalone_count')}</span>
+                  <span style={{color:C.t3,fontSize:'0.65rem',marginLeft:'auto'}}>{fmtV(standaloneCost)}</span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -5806,6 +5853,7 @@ function SettingsPanel({settingsSub,settings,setSettings,mats,setMats,prints,set
       <div/>
       <F label={t('rb_piva')}><Inp v={settings.piva||''} set={v=>ss('piva',v)} ph="IT12345678901"/></F>
       <F label={t('rb_cf')}><Inp v={settings.cf_azienda||''} set={v=>ss('cf_azienda',v)} ph="RSSMRA80..."/></F>
+      <F label={t('set_email_azienda')} span2><Inp v={settings.email_azienda||''} set={v=>ss('email_azienda',v)} ph="info@miafficina.it"/></F>
       <div style={{gridColumn:'1/-1'}}>
         <div style={{color:C.t2,fontSize:'0.7rem',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:6}}>{t('set_logo')}</div>
         {settings.logo&&<div style={{marginBottom:8,background:C.s2,borderRadius:6,padding:8,display:'inline-block'}}><img src={settings.logo} alt="Logo" style={{maxHeight:60,maxWidth:200,display:'block'}}/></div>}
@@ -6964,41 +7012,70 @@ export default function App(){
   const editQuote = f => {
     const sn = makeSnapshot(f, mats, printers, settings.c_kwh);
     setQuotes(qs => qs.map(q => q.id === f.id ? { ...f, congelato: false, snapshot: sn } : q));
-    
-    // Aggiorna le stampe collegate
-    setPrints(ps => ps.map(p => {
-      if (p.quote_id !== f.id) return p;
-      const mod = (f.modelli || []).find(m => m.id === p.quote_model_id);
-      if (!mod) return p;
-      
-      // Mappa stato modello → stato stampa
-      const statoFromMod =
-        mod.stato === 'Completata' ? 'Completata' :
-        mod.stato === 'Annullato'  ? 'Annullata'  :
-        mod.stato === 'In corso'   ? 'In corso'   :
-        p.stato; // 'In attesa' del modello mantiene lo stato corrente della stampa
-      
-      if (p.stato === 'In attesa') {
-        // Stampa ancora da avviare: aggiorna tutti i dati tecnici + eventuale nuovo stato
-        const costs = calcCost({modelli: [mod], c_kwh: settings.c_kwh, matsDb: mats, printers});
-        return {
-          ...p,
-          materials: mod.materials,
-          printer_id: mod.printer_id,
-          ore: mod.ore,
-          min: mod.min,
-          m_op: mod.m_op,
-          costo: costs.total,
-          cost_detail: costs,
-          stato: statoFromMod,
-        };
-      } else if (p.stato !== 'Completata' && p.stato !== 'Fallita') {
-        // Stampa in corso o annullata: solo lo stato viene aggiornato, non i dati tecnici
-        return { ...p, stato: statoFromMod };
-      }
-      // Stampa già completata o fallita: non modificare
-      return p;
-    }));
+
+    // Aggiorna stampe collegate + crea stampe per i nuovi modelli aggiunti
+    setPrints(ps => {
+      // Aggiorna stampe esistenti
+      const updated = ps.map(p => {
+        if (p.quote_id !== f.id) return p;
+        const mod = (f.modelli || []).find(m => m.id === p.quote_model_id);
+        if (!mod) return p;
+
+        const statoFromMod =
+          mod.stato === 'Completata' ? 'Completata' :
+          mod.stato === 'Annullato'  ? 'Annullata'  :
+          mod.stato === 'In corso'   ? 'In corso'   :
+          p.stato;
+
+        if (p.stato === 'In attesa') {
+          const costs = calcCost({modelli: [mod], c_kwh: settings.c_kwh, matsDb: mats, printers});
+          return {
+            ...p,
+            materials: mod.materials,
+            printer_id: mod.printer_id,
+            ore: mod.ore,
+            min: mod.min,
+            m_op: mod.m_op,
+            costo: costs.total,
+            cost_detail: costs,
+            stato: statoFromMod,
+          };
+        } else if (p.stato !== 'Completata' && p.stato !== 'Fallita') {
+          return { ...p, stato: statoFromMod };
+        }
+        return p;
+      });
+
+      // Crea stampe per i nuovi modelli che non hanno ancora una stampa associata
+      const newPrints = (f.modelli || [])
+        .filter(mod => mod.stato !== 'Annullato')
+        .filter(mod => !updated.some(p => p.quote_id === f.id && p.quote_model_id === mod.id))
+        .map(mod => {
+          const costs = calcCost({modelli: [mod], c_kwh: settings.c_kwh, matsDb: mats, printers});
+          return {
+            id: uid(),
+            nome: `${f.numero} — ${mod.nome_modello}`,
+            nome_progetto: f.nome_progetto || '',
+            data: f.data,
+            printer_id: mod.printer_id,
+            materials: mod.materials,
+            ore: mod.ore,
+            min: mod.min,
+            stato: 'In attesa',
+            cliente: f.cliente,
+            note: `Modello associato al preventivo ${f.numero}`,
+            m_op: mod.m_op,
+            costo: costs.total,
+            cost_detail: costs,
+            quote_id: f.id,
+            quote_model_id: mod.id,
+            stock_deducted: false,
+            waste_deducted: false,
+          };
+        });
+
+      return [...newPrints, ...updated];
+    });
 
     setModal(null);
   };
@@ -7070,7 +7147,28 @@ export default function App(){
   };
   const deleteItem=(type,id,opt)=>{
     if(type==='mat')setMats(ms=>ms.filter(x=>x.id!==id));
-    else if(type==='print')setPrints(ps=>ps.filter(x=>x.id!==id));
+    else if(type==='print'){
+      if(opt==='remove_model'){
+        // Elimina la stampa e rimuove il modello dal preventivo collegato
+        const pr=prints.find(x=>x.id===id);
+        if(pr?.quote_id && pr?.quote_model_id){
+          setQuotes(qs=>qs.map(q=>{
+            if(q.id!==pr.quote_id)return q;
+            const newModelli=(q.modelli||[]).filter(m=>m.id!==pr.quote_model_id);
+            // Ricalcola stato preventivo
+            let qStato='In attesa';
+            const nonAnnullati=newModelli.filter(m=>m.stato!=='Annullato');
+            if(nonAnnullati.length>0){
+              if(nonAnnullati.every(m=>m.stato==='Completata'))qStato='Completato';
+              else if(nonAnnullati.some(m=>m.stato==='In corso'))qStato='Confermato';
+            }else if(newModelli.length===0)qStato='In attesa';
+            else qStato='Annullato';
+            return{...q,modelli:newModelli,stato:qStato};
+          }));
+        }
+      }
+      setPrints(ps=>ps.filter(x=>x.id!==id));
+    }
     else if(type==='quote'){
       /* opt: 'unlink' = scollega stampe, 'also' = elimina anche stampe */
       if(opt==='also')setPrints(ps=>ps.filter(p=>p.quote_id!==id));
@@ -7308,8 +7406,8 @@ export default function App(){
       {modal?.type==='mat'     &&<Modal title={modal.data?t('mat_edit'):t('mat_new')} onClose={()=>setModal(null)}><MatForm init={modal.data} settings={settings} onSave={upsertMat} onClose={()=>setModal(null)}/></Modal>}
       {modal?.type==='printer' &&<Modal title={modal.data?t('pr_edit'):t('pr_new')} onClose={()=>setModal(null)}><PrinterForm init={modal.data} onSave={upsertPrinter} onClose={()=>setModal(null)}/></Modal>}
       {modal?.type==='client'  &&<Modal title={modal.data?t('rb_edit'):t('rb_new')} onClose={()=>setModal(null)}><ClientForm init={modal.data} onSave={upsertClient} onClose={()=>setModal(null)}/></Modal>}
-      {modal?.type==='quote'     &&<Modal title={t('q_new')} onClose={()=>setModal(null)} wide maxWidth={1100}><QuoteForm mats={mats} printers={printers} settings={settings} quotes={quotes} clients={clients} usedNums={usedNums} prints={prints} onSave={addQuote} onClose={()=>setModal(null)}/></Modal>}
-      {modal?.type==='quote_edit'&&<Modal title={t('edit_quote_title')} onClose={()=>setModal(null)} wide maxWidth={1100}><QuoteForm mats={mats} printers={printers} settings={settings} quotes={quotes} clients={clients} usedNums={usedNums} prints={prints} init={modal.data} isEdit onSave={f=>editQuote({...modal.data,...f})} onClose={()=>setModal(null)}/></Modal>}
+      {modal?.type==='quote'     &&<Modal title={t('q_new')} onClose={()=>setModal(null)} wide maxWidth={1100}><QuoteForm mats={mats} printers={printers} settings={settings} quotes={quotes} clients={clients} usedNums={usedNums} prints={prints} onSave={addQuote} onClose={()=>setModal(null)} onDeletePrint={id=>setPrints(ps=>ps.filter(p=>p.id!==id))}/></Modal>}
+      {modal?.type==='quote_edit'&&<Modal title={t('edit_quote_title')} onClose={()=>setModal(null)} wide maxWidth={1100}><QuoteForm mats={mats} printers={printers} settings={settings} quotes={quotes} clients={clients} usedNums={usedNums} prints={prints} init={modal.data} isEdit onSave={f=>editQuote({...modal.data,...f})} onClose={()=>setModal(null)} onDeletePrint={id=>setPrints(ps=>ps.filter(p=>p.id!==id))}/></Modal>}
       {modal?.type==='stock'   &&<Modal title={t('stk_upd')} onClose={()=>setModal(null)}><StockForm mat={modal.data} onSave={ns=>updateStock(modal.data.id,ns)} onClose={()=>setModal(null)}/></Modal>}
       {modal?.type==='spools'  &&<Modal title={t('spool_title')} onClose={()=>setModal(null)} wide><SpoolManager mat={modal.data} onSave={updateSpools} onClose={()=>setModal(null)}/></Modal>}
       {modal?.type==='waste'   &&<Modal title={`⚠ ${t('st_fallita')} — ${t('print_form_materials')}`} onClose={()=>handleWasteSave(false,[])}><WasteForm print={modal.data} mats={mats} onSave={handleWasteSave} onClose={()=>handleWasteSave(false,[])}/></Modal>}
@@ -7317,11 +7415,33 @@ export default function App(){
       {confirm&&(()=>{
         const linkedPrints=confirm.type==='quote'?prints.filter(p=>p.quote_id===confirm.id):[];
         const isQuoteWithPrints=confirm.type==='quote'&&linkedPrints.length>0;
+        const linkedPrintObj=confirm.type==='print'?prints.find(p=>p.id===confirm.id):null;
+        const isLinkedPrint=confirm.type==='print'&&!!linkedPrintObj?.quote_id;
+        const linkedQuote=isLinkedPrint?quotes.find(q=>q.id===linkedPrintObj.quote_id):null;
         return(
           <div style={{position:'absolute',inset:0,background:'rgba(0,0,0,0.82)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:200}}>
-            <div style={{background:C.s1,border:`1px solid ${C.b}`,borderRadius:10,padding:'1.25rem',maxWidth:400,width:'90%'}}>
-              <div style={{color:C.t,fontWeight:500,marginBottom:8}}>{isQuoteWithPrints?t('q_del_title'):t('confirm_del')}</div>
-              {isQuoteWithPrints?(
+            <div style={{background:C.s1,border:`1px solid ${C.b}`,borderRadius:10,padding:'1.25rem',maxWidth:420,width:'90%'}}>
+              <div style={{color:C.t,fontWeight:500,marginBottom:8}}>{isQuoteWithPrints?t('q_del_title'):isLinkedPrint?t('del_print_linked_title'):t('confirm_del')}</div>
+              {isLinkedPrint?(
+                <>
+                  <div style={{color:C.t2,fontSize:'0.875rem',marginBottom:'1rem'}}>
+                    {t('del_print_linked_body')} <strong style={{color:C.t}}>#{linkedQuote?.numero||'—'}</strong>{linkedQuote?.nome_progetto?` — ${linkedQuote.nome_progetto}`:''}.
+                  </div>
+                  <div style={{display:'flex',flexDirection:'column',gap:6,marginBottom:'1rem'}}>
+                    <button onClick={()=>deleteItem('print',confirm.id,'remove_model')}
+                      style={{background:C.errBg,border:`1px solid ${C.errBr}`,color:C.err,borderRadius:7,padding:'0.55rem 0.875rem',cursor:'pointer',fontFamily:'inherit',fontSize:'0.82rem',textAlign:'left'}}>
+                      <div style={{fontWeight:600,marginBottom:2}}>{t('del_print_remove_model')}</div>
+                      <div style={{fontSize:'0.72rem',opacity:0.8}}>{t('del_print_remove_model_hint')}</div>
+                    </button>
+                    <button onClick={()=>deleteItem('print',confirm.id)}
+                      style={{background:C.warnBg,border:`1px solid ${C.warnBr}`,color:C.warn,borderRadius:7,padding:'0.55rem 0.875rem',cursor:'pointer',fontFamily:'inherit',fontSize:'0.82rem',textAlign:'left'}}>
+                      <div style={{fontWeight:600,marginBottom:2}}>{t('del_print_only')}</div>
+                      <div style={{fontSize:'0.72rem',opacity:0.8}}>{t('del_print_only_hint')}</div>
+                    </button>
+                  </div>
+                  <div style={{display:'flex',justifyContent:'flex-end'}}><Btn onClick={()=>setConfirm(null)}>{t('cancel')}</Btn></div>
+                </>
+              ):isQuoteWithPrints?(
                 <>
                   <div style={{color:C.t2,fontSize:'0.875rem',marginBottom:'1rem'}}>
                     Preventivo <strong style={{color:C.t}}>{confirm.nome}</strong> — {t('q_del_has_prints')}
@@ -7343,7 +7463,7 @@ export default function App(){
                 </>
               ):(
                 <>
-                  <div style={{color:C.t2,fontSize:'0.875rem',marginBottom:'1rem'}}>{t('del_confirm_text')} <strong style={{color:C.t}}>{confirm.nome}</strong>? {t('irreversible')}<br/><span style={{color:C.t3,fontSize:'0.8rem',marginTop:4,display:'block'}}>{t('del_linked')}</span></div>
+                  <div style={{color:C.t2,fontSize:'0.875rem',marginBottom:'1rem'}}>{t('del_confirm_text')} <strong style={{color:C.t}}>{confirm.nome}</strong>? {t('irreversible')}</div>
                   <div style={{display:'flex',gap:8,justifyContent:'flex-end'}}><Btn onClick={()=>setConfirm(null)}>{t('cancel')}</Btn><Btn onClick={()=>deleteItem(confirm.type,confirm.id)} variant="dan"><Trash2 size={13}/>{t('del')}</Btn></div>
                 </>
               )}
