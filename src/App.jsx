@@ -18,7 +18,7 @@
 import { useState, useEffect, useRef, useCallback, createContext, useContext, Fragment } from "react";
 import { LayoutDashboard,Layers,Package,Printer,FileText,Settings,Plus,Edit2,Trash2,X,Search,AlertTriangle,RefreshCw,ChevronRight,ChevronLeft,Download,Upload,Eye,Minus,Users,Copy,Lock,Calculator,Archive } from "lucide-react";
 
-const APP_VERSION='V2.41';
+const APP_VERSION='V2.42';
 const DATA_VERSION='11';
 
 /* ══ I18N ══ */
@@ -1036,6 +1036,7 @@ const calcCommitted=(prints=[],excludeIds=[])=>{
 };
 const REGIMI=['ordinario','forfettario','occasionale'];
 const uid=()=>Math.random().toString(36).slice(2,9);
+const fmtG=v=>+(Math.round(+v*10)/10).toFixed(1).replace(/\.0$/,'');
 
 /* ── Spool helpers ── */
 const SPOOL_SIZES=[250,500,750,1000,2000,3000];
@@ -2087,7 +2088,7 @@ const MatRow=({row,index,mats,onChange,onRemove,canRemove,showSnap,committedMap,
   const needed=+row.peso_g||0;
   const remaining=netAvail!==null?netAvail-needed:null;
   const stkClr=remaining===null?C.t3:remaining<0?C.err:remaining<soglia?C.warn:C.ok;
-  const stkLbl=remaining===null?'—':remaining<0?`−${Math.abs(remaining)}g`:`${remaining}g`;
+  const stkLbl=remaining===null?'—':remaining<0?`−${fmtG(Math.abs(remaining))}g`:`${fmtG(remaining)}g`;
   const totalDeductions=extCommitted+inFormOthers;
   const tooltipText=mat?`Reale: ${realStock}g${extCommitted>0?` | Imp.attivi: ${extCommitted}g`:''}${inFormOthers>0?` | Questo form altri: ${inFormOthers}g`:''} → Disp.: ${netAvail}g`:'';
 
@@ -2144,7 +2145,7 @@ const MatRow=({row,index,mats,onChange,onRemove,canRemove,showSnap,committedMap,
                       <span style={{width:8,height:8,borderRadius:'50%',background:m.colore,flexShrink:0,display:'inline-block'}}/>
                       <span style={{color:C.t,fontSize:'0.78rem',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}} title={matNomeL(m,colorLang)}>{matNomeL(m,colorLang)}</span>
                     </span>
-                    <span style={{color:stClr(st),fontSize:'0.65rem',textAlign:'right',whiteSpace:'nowrap',paddingLeft:8}}>{m.stock}g</span>
+                    <span style={{color:stClr(st),fontSize:'0.65rem',textAlign:'right',whiteSpace:'nowrap',paddingLeft:8}}>{fmtG(m.stock)}g</span>
                     {m.marca
                       ?<span style={{color:C.t3,fontSize:'0.62rem',border:`1px solid ${C.b}`,borderRadius:3,padding:'0 5px',textAlign:'right',whiteSpace:'nowrap',paddingLeft:8}}>{m.marca}</span>
                       :<span/>}
@@ -2156,17 +2157,17 @@ const MatRow=({row,index,mats,onChange,onRemove,canRemove,showSnap,committedMap,
         )}
       </div>
       
-      <input disabled={disabled} type="number" value={row.peso_g} min={0} onChange={e=>onChange(index,'peso_g',+e.target.value)} placeholder="g"
+      <input disabled={disabled} type="text" inputMode="decimal" value={row.peso_g} onChange={e=>{const v=e.target.value.replace(',','.');if(v===''||/^\d*\.?\d*$/.test(v))onChange(index,'peso_g',v===''?0:+v);}} placeholder="g"
         style={{...inp,width:58,padding:'0.25rem 0.4rem',fontSize:'0.78rem',
           borderColor:remaining!==null&&remaining<0?C.err:remaining!==null&&remaining<soglia?C.warn:''}}/>
       <span style={{color:C.t3,fontSize:'0.7rem'}}>g</span>
       {mat&&<span style={{color:hasM?C.warn:C.t3,fontSize:'0.7rem',minWidth:42}}>{fmtV(adjCost)}</span>}
-      {mat&&(
+      {mat&&!disabled&&(
         <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:1,minWidth:68}} title={tooltipText}>
           <span style={{color:stkClr,fontSize:'0.68rem',background:`${stkClr}18`,borderRadius:3,padding:'1px 4px',whiteSpace:'nowrap',fontWeight:remaining!==null&&remaining<0?700:400}}>
             {remaining!==null&&remaining<0?'⚠ ':''}{stkLbl}
           </span>
-          {totalDeductions>0&&<span style={{color:C.t3,fontSize:'0.6rem',whiteSpace:'nowrap'}}>imp. {totalDeductions}g</span>}
+          {totalDeductions>0&&<span style={{color:C.t3,fontSize:'0.6rem',whiteSpace:'nowrap'}}>imp. {fmtG(totalDeductions)}g</span>}
         </div>
       )}
       {priceChanged&&<span style={{color:C.warn,fontSize:'0.65rem',flexShrink:0}}>⚠</span>}
@@ -2237,7 +2238,7 @@ function MatForm({init,settings,onSave,onClose}){
         <Sel v={f.nome_colore} set={selectColore}>
           <option value="">— {t('mat_field_color_none')} —</option>
           {colori_map.map(pair=>(
-            <option key={pair.en} value={pair.en}>{lang==='en'?pair.en:pair.it}</option>
+            <option key={pair.en} value={pair.en}>{colorLang==='en'?pair.en:pair.it}</option>
           ))}
         </Sel>
       </F>
@@ -2488,7 +2489,7 @@ function SpoolManager({mat,onSave,onClose}){
             </div>
           </div>
           <div style={{display:'flex',alignItems:'center',gap:6}}>
-            {!isEsaurita&&<><span style={{color:residuoClr,fontWeight:600,fontSize:'0.82rem'}}>{sp.residuo}g</span>
+            {!isEsaurita&&<><span style={{color:residuoClr,fontWeight:600,fontSize:'0.82rem'}}>{fmtG(sp.residuo)}g</span>
             <span style={{color:C.t3,fontSize:'0.68rem'}}>({pct}%)</span></>}
             {isEsaurita&&<span style={{color:C.err,fontSize:'0.72rem',background:C.errBg,padding:'1px 6px',borderRadius:3}}>0g</span>}
           </div>
@@ -2515,7 +2516,7 @@ function SpoolManager({mat,onSave,onClose}){
           <div style={{color:txtC,fontSize:'0.7rem',opacity:0.85}}>{mat.marca}{mat.codice?` · ${mat.codice}`:''}</div>
         </div>
         <div style={{textAlign:'right'}}>
-          <div style={{color:txtC,fontWeight:700,fontSize:'1.1rem'}}>{spools.length>0?totStock:mat.stock}g</div>
+          <div style={{color:txtC,fontWeight:700,fontSize:'1.1rem'}}>{fmtG(spools.length>0?totStock:mat.stock)}g</div>
           {(()=>{
             const nChiuse=spools.filter(s=>s.stato==='chiusa').length;
             const nEsaurite=spools.filter(s=>s.stato==='esaurita'||s.residuo<=0).length;
@@ -2812,7 +2813,7 @@ function WasteForm({print,mats,onSave,onClose}){
                   {mat&&<div style={{width:8,height:8,borderRadius:'50%',background:mat.colore,flexShrink:0}}/>}
                   <span style={{color:C.t,fontSize:'0.82rem',flex:1}}>{mat?.nome||t('waste_unknown_mat')}</span>
                   <span style={{color:C.t3,fontSize:'0.72rem'}}>{t('waste_expected')}: <strong style={{color:C.t2}}>{m.peso_g}g</strong></span>
-                  <span style={{color:stkClr,fontSize:'0.72rem'}}>{t('stock')}: <strong>{stk}g</strong></span>
+                  <span style={{color:stkClr,fontSize:'0.72rem'}}>{t('stock')}: <strong>{fmtG(stk)}g</strong></span>
                 </div>
                 <div style={{display:'flex',alignItems:'center',gap:6}}>
                   <label style={{color:C.t3,fontSize:'0.75rem',minWidth:120}}>{t('waste_consumed_label')}:</label>
@@ -4456,7 +4457,7 @@ function MatInvView({mats,alerts,settings,setModal,setConfirm,setMats}){
               </button>
             </div>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'baseline',marginBottom:5}}>
-              <div><span style={{color:stClr(st),fontSize:'1.1rem',fontWeight:700}}>{m.stock}g</span><span style={{color:C.t3,fontSize:'0.68rem',marginLeft:3}}>min {m.soglia}g</span></div>
+              <div><span style={{color:stClr(st),fontSize:'1.1rem',fontWeight:700}}>{fmtG(m.stock)}g</span><span style={{color:C.t3,fontSize:'0.68rem',marginLeft:3}}>min {m.soglia}g</span></div>
               <div style={{textAlign:'right'}}><div style={{color:C.t3,fontSize:'0.65rem'}}>{t('inv_val_short')}</div><div style={{color:C.a,fontWeight:500,fontSize:'0.8rem'}}>{fmtV(val)}</div></div>
             </div>
             <div style={{height:5,background:STOCK_BAR_GRADIENT,borderRadius:3,overflow:'hidden',marginBottom:5,position:'relative'}}>
@@ -4809,7 +4810,7 @@ function PrintView({prints,mats,printers,quotes,settings,onAddPrint,onEditPrint,
         </div>
         {/* Materiali — sfondo pieno del colore materiale */}
         <div style={{display:'flex',gap:3,flexWrap:'wrap',marginBottom:3}}>
-          {(p.materials||[]).slice(0,3).map(({mat_id,peso_g},i)=>{
+          {(p.materials||[]).map(({mat_id,peso_g},i)=>{
             const mat=mats.find(m=>m.id===mat_id);if(!mat)return null;
             const txtC=contrastText(mat.colore);
             return(<span key={i} style={{display:'inline-flex',alignItems:'center',gap:3,background:mat.colore,border:`1px solid ${mat.colore}`,borderRadius:3,padding:'1px 6px',fontSize:'0.67rem',color:txtC,fontWeight:500}}>
