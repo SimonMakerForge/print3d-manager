@@ -18,7 +18,7 @@
 import { useState, useEffect, useRef, useCallback, createContext, useContext, Fragment } from "react";
 import { LayoutDashboard,Layers,Package,Printer,FileText,Settings,Plus,Edit2,Trash2,X,Search,AlertTriangle,RefreshCw,ChevronRight,ChevronLeft,Download,Upload,Eye,Minus,Users,Copy,Lock,Calculator,Archive } from "lucide-react";
 
-const APP_VERSION='V2.42';
+const APP_VERSION='V2.42b';
 const DATA_VERSION='11';
 
 /* ══ I18N ══ */
@@ -2073,6 +2073,11 @@ const MatRow=({row,index,mats,onChange,onRemove,canRemove,showSnap,committedMap,
   const [srch,setSrch]=useState('');
   const [open,setOpen]=useState(false);
   const ref=useRef();
+  // Stato locale stringa per l'input grammi — evita che il punto venga eliminato durante la digitazione
+  const [rawVal,setRawVal]=useState(String(row.peso_g??0));
+  useEffect(()=>{
+    if(+rawVal!==(+row.peso_g||0))setRawVal(String(row.peso_g??0));
+  },[row.peso_g]);
   const mat=mats.find(m=>m.id===row.mat_id);
   const hasM=mat&&(+mat.markup||0)>0;
   const adjCost=mat?(mat.prezzo/1000)*(+row.peso_g||0)*(1+(+mat.markup||0)/100):0;
@@ -2157,7 +2162,19 @@ const MatRow=({row,index,mats,onChange,onRemove,canRemove,showSnap,committedMap,
         )}
       </div>
       
-      <input disabled={disabled} type="text" inputMode="decimal" value={row.peso_g} onChange={e=>{const v=e.target.value.replace(',','.');if(v===''||/^\d*\.?\d*$/.test(v))onChange(index,'peso_g',v===''?0:+v);}} placeholder="g"
+      <input disabled={disabled} type="text" inputMode="decimal" value={rawVal}
+        onChange={e=>{
+          const raw=e.target.value.replace(',','.');
+          setRawVal(raw);
+          if(raw===''||raw==='.'){onChange(index,'peso_g',0);return;}
+          if(/^\d*\.?\d*$/.test(raw)&&!raw.endsWith('.')){onChange(index,'peso_g',+raw);}
+        }}
+        onBlur={()=>{
+          const n=parseFloat(rawVal)||0;
+          onChange(index,'peso_g',n);
+          setRawVal(String(n));
+        }}
+        placeholder="g"
         style={{...inp,width:58,padding:'0.25rem 0.4rem',fontSize:'0.78rem',
           borderColor:remaining!==null&&remaining<0?C.err:remaining!==null&&remaining<soglia?C.warn:''}}/>
       <span style={{color:C.t3,fontSize:'0.7rem'}}>g</span>
