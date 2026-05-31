@@ -18,7 +18,7 @@
 import { useState, useEffect, useRef, useCallback, createContext, useContext, Fragment } from "react";
 import { LayoutDashboard,Layers,Package,Printer,FileText,Settings,Plus,Edit2,Trash2,X,Search,AlertTriangle,RefreshCw,ChevronRight,ChevronLeft,Download,Upload,Eye,Minus,Users,Copy,Lock,Calculator,Archive } from "lucide-react";
 
-const APP_VERSION='V2.42b';
+const APP_VERSION='V2.43';
 const DATA_VERSION='11';
 
 /* ══ I18N ══ */
@@ -1296,7 +1296,7 @@ const buildCriticiHtml = (alerts, settings, lang='it', groupBy='tipo') => {
           <span style="font-size:11px;color:#666">${m.marca||''}${m.codice?` · ${m.codice}`:''}</span>
         </td>
         <td style="padding:5px 10px;border-bottom:1px solid #f0f0f0;text-align:center">
-          <span style="color:${stClr};font-weight:700">${m.stock}g</span>
+          <span style="color:${stClr};font-weight:700">${Math.round(m.stock*10)/10}g</span>
         </td>
         <td style="padding:5px 10px;border-bottom:1px solid #f0f0f0;text-align:center;color:#888;font-size:12px">min ${m.soglia}g</td>
         <td style="padding:5px 10px;border-bottom:1px solid #f0f0f0;text-align:center">
@@ -1669,7 +1669,7 @@ const buildMatsListHtml=(mats,settings,lang='it',filters={})=>{
         ${m.marca?`<br><span style="font-size:11px;color:#666">${m.marca}${m.codice?` · ${m.codice}`:''}</span>`:''}
       </td>
       <td style="padding:5px 10px;border-bottom:1px solid #f0f0f0;text-align:center">
-        <span style="color:${stClr};font-weight:700">${m.stock}g</span><br>
+        <span style="color:${stClr};font-weight:700">${Math.round(m.stock*10)/10}g</span><br>
         <span style="font-size:10px;color:#aaa">min ${m.soglia}g</span>
       </td>
       <td style="padding:5px 10px;border-bottom:1px solid #f0f0f0;text-align:center">
@@ -2187,7 +2187,7 @@ const MatRow=({row,index,mats,onChange,onRemove,canRemove,showSnap,committedMap,
           {totalDeductions>0&&<span style={{color:C.t3,fontSize:'0.6rem',whiteSpace:'nowrap'}}>imp. {fmtG(totalDeductions)}g</span>}
         </div>
       )}
-      {priceChanged&&<span style={{color:C.warn,fontSize:'0.65rem',flexShrink:0}}>⚠</span>}
+      {priceChanged&&!disabled&&<span style={{color:C.warn,fontSize:'0.65rem',flexShrink:0}}>⚠</span>}
       {canRemove&&<button onClick={()=>onRemove(index)} style={{background:'none',border:'none',color:C.err,cursor:'pointer',padding:2,display:'flex',flexShrink:0}}><Minus size={13}/></button>}
     </div>
   );
@@ -2341,7 +2341,7 @@ function StockForm({mat,onSave,onClose}){
   const fmtV=useFmt();
   const [mode,setMode]=useState('set');const [val,setVal]=useState(mat.stock);const ns=mode==='set'?Math.max(0,+val):Math.max(0,mat.stock+(+val));
   const nomeCompleto=[mat.marca,mat.nome].filter(Boolean).join(' - ');
-  return(<div><div style={{color:C.t2,fontSize:'0.875rem',marginBottom:'0.75rem'}}>{t('stk_of')} <strong style={{color:C.t}}>{nomeCompleto}</strong>: <strong style={{color:C.a}}>{mat.stock}g</strong></div><div style={{display:'flex',gap:6,marginBottom:'0.75rem'}}>{[['set',t('stk_set')],['add',t('stk_add')]].map(([m,l])=>(<button key={m} onClick={()=>{setMode(m);setVal(m==='set'?mat.stock:0);}} style={{flex:1,padding:'0.35rem',background:mode===m?C.a2:'transparent',border:`1px solid ${mode===m?C.a:C.b}`,color:mode===m?C.a:C.t2,borderRadius:6,cursor:'pointer',fontSize:'0.82rem',fontFamily:'inherit'}}>{l}</button>))}</div><F label={mode==='set'?t('stk_new'):t('stk_qty')}><Inp type="number" v={val} set={setVal} step={1}/></F>{mode==='add'&&<div style={{color:C.t2,fontSize:'0.82rem',margin:'0.4rem 0'}}>{t('stk_cur')}: <strong style={{color:C.a}}>{ns}g</strong></div>}<div style={{display:'flex',gap:8,justifyContent:'flex-end',marginTop:'0.75rem'}}><Btn onClick={onClose}>{t('cancel')}</Btn><Btn onClick={()=>onSave(ns)} variant="pri"><RefreshCw size={13}/>{t('stk_upd')}</Btn></div></div>);
+  return(<div><div style={{color:C.t2,fontSize:'0.875rem',marginBottom:'0.75rem'}}>{t('stk_of')} <strong style={{color:C.t}}>{nomeCompleto}</strong>: <strong style={{color:C.a}}>{fmtG(mat.stock)}g</strong></div><div style={{display:'flex',gap:6,marginBottom:'0.75rem'}}>{[['set',t('stk_set')],['add',t('stk_add')]].map(([m,l])=>(<button key={m} onClick={()=>{setMode(m);setVal(m==='set'?mat.stock:0);}} style={{flex:1,padding:'0.35rem',background:mode===m?C.a2:'transparent',border:`1px solid ${mode===m?C.a:C.b}`,color:mode===m?C.a:C.t2,borderRadius:6,cursor:'pointer',fontSize:'0.82rem',fontFamily:'inherit'}}>{l}</button>))}</div><F label={mode==='set'?t('stk_new'):t('stk_qty')}><Inp type="number" v={val} set={setVal} step={1}/></F>{mode==='add'&&<div style={{color:C.t2,fontSize:'0.82rem',margin:'0.4rem 0'}}>{t('stk_cur')}: <strong style={{color:C.a}}>{ns}g</strong></div>}<div style={{display:'flex',gap:8,justifyContent:'flex-end',marginTop:'0.75rem'}}><Btn onClick={onClose}>{t('cancel')}</Btn><Btn onClick={()=>onSave(ns)} variant="pri"><RefreshCw size={13}/>{t('stk_upd')}</Btn></div></div>);
 }
 
 function SpoolManager({mat,onSave,onClose}){
@@ -2588,7 +2588,7 @@ function SpoolManager({mat,onSave,onClose}){
       {!autoGen&&spools.length>0&&stockGap>0&&(
         <div style={{background:C.warnBg,border:`1px solid ${C.warnBr}`,borderRadius:7,padding:'0.5rem 0.875rem',marginBottom:'0.75rem',display:'flex',justifyContent:'space-between',alignItems:'center',gap:8}}>
           <div>
-            <div style={{color:C.warn,fontWeight:600,fontSize:'0.8rem'}}>{t('spool_stock_gap')}: {stockGap}g ({(stockGap/1000).toFixed(3)} kg)</div>
+            <div style={{color:C.warn,fontWeight:600,fontSize:'0.8rem'}}>{t('spool_stock_gap')}: {fmtG(stockGap)}g ({(fmtG(stockGap)/1000).toFixed(2)} kg)</div>
             <div style={{color:C.t3,fontSize:'0.68rem'}}>{t('spool_stock_gap_hint')}</div>
           </div>
           <Btn sm onClick={()=>setAutoGen({nominalG:1000,tipo_contenitore:'bobina_completa',materiale_bobina:'plastica'})} variant="warn">
@@ -2728,7 +2728,7 @@ function SpoolManager({mat,onSave,onClose}){
             <div style={{color:C.t2,fontSize:'0.78rem',marginBottom:'0.75rem',lineHeight:1.5}}>{t('spool_autogen_hint')}</div>
             <div style={{background:C.s2,borderRadius:6,padding:'0.4rem 0.75rem',marginBottom:'0.75rem',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
               <span style={{color:C.t3,fontSize:'0.75rem'}}>{t('spool_autogen_remaining')}</span>
-              <span style={{color:C.warn,fontWeight:700,fontSize:'1rem'}}>{gap}g <span style={{fontSize:'0.78rem',fontWeight:400,color:C.t3}}>({(gap/1000).toFixed(3)} kg)</span></span>
+              <span style={{color:C.warn,fontWeight:700,fontSize:'1rem'}}>{fmtG(gap)}g <span style={{fontSize:'0.78rem',fontWeight:400,color:C.t3}}>({(fmtG(gap)/1000).toFixed(2)} kg)</span></span>
             </div>
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:'0.625rem'}}>
               <div>
@@ -2829,7 +2829,7 @@ function WasteForm({print,mats,onSave,onClose}){
                 <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:4}}>
                   {mat&&<div style={{width:8,height:8,borderRadius:'50%',background:mat.colore,flexShrink:0}}/>}
                   <span style={{color:C.t,fontSize:'0.82rem',flex:1}}>{mat?.nome||t('waste_unknown_mat')}</span>
-                  <span style={{color:C.t3,fontSize:'0.72rem'}}>{t('waste_expected')}: <strong style={{color:C.t2}}>{m.peso_g}g</strong></span>
+                  <span style={{color:C.t3,fontSize:'0.72rem'}}>{t('waste_expected')}: <strong style={{color:C.t2}}>{fmtG(m.peso_g)}g</strong></span>
                   <span style={{color:stkClr,fontSize:'0.72rem'}}>{t('stock')}: <strong>{fmtG(stk)}g</strong></span>
                 </div>
                 <div style={{display:'flex',alignItems:'center',gap:6}}>
@@ -3047,11 +3047,14 @@ function QuoteForm({mats,printers,settings,quotes,clients,usedNums,prints,init,i
   /* stock impegnato: escludi le stampe già collegate a questo preventivo (in modifica) */
   const excludedPrintIds=isEdit&&init?.id?(prints||[]).filter(p=>p.quote_id===init.id).map(p=>p.id):[];
   const committedMap=calcCommitted(prints||[],excludedPrintIds);
-  /* inFormUsageMap: totale grammi per mat_id in tutti i modelli del form corrente */
-  const inFormUsageMap=f.modelli.reduce((acc,mod)=>{
-    (mod.materials||[]).forEach(m=>{acc[m.mat_id]=(acc[m.mat_id]||0)+(+m.peso_g||0);});
-    return acc;
-  },{});
+  /* inFormUsageMap: grammi per mat_id nei modelli NON completati
+     (i Completati hanno già scalato lo stock via applyStock, non vanno contati di nuovo) */
+  const inFormUsageMap=f.modelli
+    .filter(mod=>mod.stato!=='Completata')
+    .reduce((acc,mod)=>{
+      (mod.materials||[]).forEach(m=>{acc[m.mat_id]=(acc[m.mat_id]||0)+(+m.peso_g||0);});
+      return acc;
+    },{});
   const [removeConfirm,setRemoveConfirm]=useState(null); // {mIdx, modId, printId}
   const isModelLocked = (modId) => {
     if (!isEdit || !init?.id) return false;
@@ -4060,7 +4063,7 @@ function CsvImportReport({report,onConfirm,onClose}){
                 <span style={{color:C.t,fontWeight:500,flex:1}}>{m.nome}</span>
                 <span style={{color:C.t3}}>{m.tipo}</span>
                 <span style={{color:C.t3}}>{m.marca}</span>
-                <span style={{color:C.a,fontWeight:500}}>stock: {m.stock}g</span>
+                <span style={{color:C.a,fontWeight:500}}>stock: {fmtG(m.stock)}g</span>
               </div>
             ))}
           </Section>
@@ -4093,7 +4096,7 @@ function CsvImportReport({report,onConfirm,onClose}){
                 <span style={{color:C.err,fontWeight:500,flex:1}}>{m.nome}</span>
                 <span style={{color:C.t3}}>{m.tipo}</span>
                 <span style={{color:C.t3}}>{m.marca}</span>
-                <span style={{color:C.warn}}>stock: {m.stock}g</span>
+                <span style={{color:C.warn}}>stock: {fmtG(m.stock)}g</span>
               </div>
             ))}
           </Section>
@@ -4279,7 +4282,7 @@ function MatInvView({mats,alerts,settings,setModal,setConfirm,setMats}){
               <div style={{flex:1,height:5,background:STOCK_BAR_GRADIENT,borderRadius:3,overflow:'hidden',position:'relative'}}>
                 <div style={{position:'absolute',right:0,top:0,bottom:0,width:`${100-pct}%`,background:C.s2,transition:'width 0.3s'}}/>
               </div>
-              <span style={{color:st==='err'?C.err:st==='warn'?C.warn:C.ok,fontSize:'0.68rem',minWidth:38,textAlign:'right',fontWeight:500}}>{m.stock}g</span>
+              <span style={{color:st==='err'?C.err:st==='warn'?C.warn:C.ok,fontSize:'0.68rem',minWidth:38,textAlign:'right',fontWeight:500}}>{fmtG(m.stock)}g</span>
             </div>
             {m.note&&<div style={{color:C.t3,fontSize:'0.65rem',marginTop:4,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}} title={m.note}>{m.note}</div>}
             {/* Spacer: spinge il pulsante bobine sempre in fondo */}
@@ -4831,7 +4834,7 @@ function PrintView({prints,mats,printers,quotes,settings,onAddPrint,onEditPrint,
             const mat=mats.find(m=>m.id===mat_id);if(!mat)return null;
             const txtC=contrastText(mat.colore);
             return(<span key={i} style={{display:'inline-flex',alignItems:'center',gap:3,background:mat.colore,border:`1px solid ${mat.colore}`,borderRadius:3,padding:'1px 6px',fontSize:'0.67rem',color:txtC,fontWeight:500}}>
-              {matNomeL(mat,colorLang)} {peso_g}g
+              {matNomeL(mat,colorLang)} {fmtG(peso_g)}g
             </span>);
           })}
         </div>
@@ -6866,7 +6869,7 @@ export default function App(){
       const warnings=[];
       msList.forEach(({mat_id,peso_g})=>{
         const m=ms.find(x=>x.id===mat_id);
-        if(m&&+peso_g>m.stock)warnings.push(`${m.nome}: richiesti ${peso_g}g, disponibili ${m.stock}g → azzerato`);
+        if(m&&+peso_g>m.stock)warnings.push(`${m.nome}: richiesti ${Math.round(peso_g*10)/10}g, disponibili ${Math.round(m.stock*10)/10}g → azzerato`);
       });
       /* mostra alert solo se ci sono warning (non bloccante per lo stato) */
       if(warnings.length>0)setTimeout(()=>alert(`⚠ Stock insufficiente per:\n${warnings.map(w=>`• ${w}`).join('\n')}\nLo stock verrà azzerato.`),0);
@@ -7064,9 +7067,9 @@ export default function App(){
         return p;
       });
 
-      // Crea stampe per i nuovi modelli che non hanno ancora una stampa associata
+      // Crea stampe solo per modelli In attesa che non hanno ancora una stampa associata
       const newPrints = (f.modelli || [])
-        .filter(mod => mod.stato !== 'Annullato')
+        .filter(mod => mod.stato === 'In attesa')
         .filter(mod => !updated.some(p => p.quote_id === f.id && p.quote_model_id === mod.id))
         .map(mod => {
           const costs = calcCost({modelli: [mod], c_kwh: settings.c_kwh, matsDb: mats, printers});
